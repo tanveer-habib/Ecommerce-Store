@@ -26,7 +26,7 @@ export const POST = async (req) => {
             data: { inStock: !product.inStock }
         });
 
-        return res.json({ messag: "Product stock updated successfully" });
+        return res.json({ message: "Product stock updated successfully" });
     } catch (error) {
         console.error(error);
         return res.json({ error: error.code || error.message }, { status: 400 });

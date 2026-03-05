@@ -2,6 +2,8 @@ import { prisma } from "@/lib/prisma";
 import authSeller from "@/middlewares/authSeller";
 import { getAuth } from "@clerk/nextjs/server"
 import { NextResponse as res } from "next/server";
+import imageKit from "@/configs/imageKit.js";
+import { toFile } from "@imagekit/nodejs";
 
 export const POST = async (req) => {
     try {
@@ -23,20 +25,41 @@ export const POST = async (req) => {
             return res.json({ error: "Missing product details" }, { status: 400 });
         };
 
+        // const imagesUrl = await Promise.all(images.map(async (image) => {
+        //     const buffer = Buffer.from(await image.arrayBuffer());
+        //     const response = await imageKit.upload({
+        //         file: buffer,
+        //         fileName: image.name,
+        //         folder: "product"
+        //     });
+        //     const url = imageKit.url({
+        //         path: response.filePath,
+        //         transformation: [
+        //             { quality: "auto" },
+        //             { format: "webp" },
+        //             { width: "1024" }
+        //         ]
+        //     });
+        //     return url;
+        // }));
+
         const imagesUrl = await Promise.all(images.map(async (image) => {
-            const buffer = Buffer.frrom(await image.arrayBuffer());
-            const response = await imageKit.upload({
-                file: buffer,
+            const buffer = Buffer.from(await image.arrayBuffer());
+            const response = await imageKit.files.upload({
+                file: await toFile(buffer, 'file'),
                 fileName: image.name,
-                folder: "product"
             });
-            const url = imageKit.url({
-                path: response.filePath,
+
+            const url = imageKit.helper.buildSrc({
+                urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
+                src: response.filePath,
                 transformation: [
-                    { quality: "auto" },
-                    { format: "webp" },
-                    { width: "1024" }
-                ]
+                    {
+                        quality: "auto",
+                        width: 1024,
+                        format: 'webp',
+                    },
+                ],
             });
             return url;
         }));

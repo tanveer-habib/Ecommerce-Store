@@ -4,7 +4,7 @@ import { NextResponse as res } from "next/server";
 export const GET = async (req) => {
     try {
         const { searchParams } = new URL(req.url);
-        const username = searchParams.get("usernmae").toLowerCase();
+        const username = searchParams.get("username").toLowerCase();
         if (!username) {
             return res.json({ error: "Missing username" }, { status: 400 });
         };
